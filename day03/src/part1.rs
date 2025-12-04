@@ -1,4 +1,3 @@
-mod part2;
 
 fn main() {
 
