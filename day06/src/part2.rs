@@ -1,63 +1,5 @@
-use std::str::FromStr;
-
-#[derive(Debug)]
-enum Operator {
-    Multiply,
-    Add
-}
-
-impl Operator {
-    fn apply(&self, left: i64, right: i64) -> i64 {
-        match self {
-            Operator::Multiply => left * right,
-            Operator::Add => left + right
-        }
-    }
-}
-
-impl FromStr for Operator {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "*" => Ok(Self::Multiply),
-            "+" => Ok(Self::Add),
-            _ => Err(format!("Unknown operator {}", s))
-        }
-    }
-}
-
-#[derive(Debug)]
-enum Line {
-    Operands(Vec<String>),
-    Operators(Vec<Operator>)
-}
-
-impl FromStr for Line {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-
-        // TODO: Parsing behaviour needs to change to respect whitespace now
-
-        // Split into a vector of substrings first
-        let cols: Vec<String> = s.split(' ')
-            .map(|s| s.trim().to_owned())
-            .filter(|s| !s.is_empty())
-            .collect();
-
-        // Operator or Operands line?
-        match cols[0].chars().next() {
-            None => Err(String::from("No columns")),
-            Some('*' | '+') => Ok(Self::Operators(
-                cols.iter().map(|s| s.parse().expect("Invalid operator")).collect()
-            )),
-            Some('0'..'9') => Ok(Self::Operands(cols)),
-            Some(s) => Err(format!("Unknown column value {}", s))
-        }
-
-    }
-}
+// forgive me
+use regex::Regex;
 
 fn main() {
 
@@ -71,42 +13,46 @@ fn main() {
     let contents = std::fs::read_to_string(filename)
         .expect("Something went wrong reading the file");
 
-    let mut operands_lines: Vec<Vec<String>> = vec![];
+    // Read the last line first, which defines the column widths and operators
+    let last_line = contents.lines().last().unwrap();
 
-    // Process each line
-    for line in contents.lines() {
+    // Split into operators, which are *always* left-aligned, so the trailing right-space
+    // is meaningful
+    let ops: Vec<&str> = Regex::new(r"([+*]\s+)").unwrap()
+        .find_iter(last_line)
+        .map(|x| x.as_str())
+        .collect();
 
-        let line: Line = line.parse().expect("Bad line");
-        println!("Line: {:?}", line);
+    // Iterate over the ops strings
+    let mut col_start: usize = 0;
+    let mut grand_total = 0i64;
 
-        match line {
+    for op in ops {
 
-            Line::Operands(line_operands) => operands_lines.push(line_operands),
+        // Iterate the other lines, extracting the numbers
+        let mut numbers: Vec<String> = vec![String::from(""); op.len()];
 
-            Line::Operators(line_operators) => {
-
-                // Reprocess the list of operands for this column, turning them into a new list
-                // For example, if we have:
-                //
-                // 64_
-                // 23_
-                // 314
-                //
-                // That'll be converted to:
-                //
-                // 4, 431, 623
-
-                let largest_scale =
-
-
-
-                // Do not process any more lines at this point
-                break
-
+        for line in contents.lines().take(contents.lines().count() - 1) {
+            for (op_col, number) in numbers.iter_mut().enumerate() {
+                number.push(line.chars().nth(op_col + col_start).unwrap());
             }
         }
 
+        // Turn the values into integers
+        let total = numbers.iter()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.parse::<i64>().expect("Bad number"))
+            .reduce(|acc, next| match op.trim() {
+                "*" => acc * next,
+                "+" => acc + next,
+                _ => panic!("Bad operator")
+            })
+            .expect("No values in problem");
+
+        grand_total += total;
+        col_start += op.len();
     }
 
-
+    println!("{}", grand_total);
 }
