@@ -91,7 +91,7 @@ fn main() {
         // Try to merge with the next item
         match merge(&acc, &next) {
 
-            // Either no intersection, or merged
+            // Either fully contained or intersected
             Some(standalone_or_merged) => {
                 acc = standalone_or_merged;
             },
@@ -100,7 +100,7 @@ fn main() {
             None => {
                 unique_ranges.push(acc);
 
-                // Start again from the next range
+                // Start again with this range
                 acc = next;
             }
         }
