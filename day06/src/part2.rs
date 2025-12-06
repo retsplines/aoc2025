@@ -38,6 +38,8 @@ impl FromStr for Line {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
 
+        // TODO: Parsing behaviour needs to change to respect whitespace now
+
         // Split into a vector of substrings first
         let cols: Vec<String> = s.split(' ')
             .map(|s| s.trim().to_owned())
@@ -93,6 +95,10 @@ fn main() {
                 // That'll be converted to:
                 //
                 // 4, 431, 623
+
+                let largest_scale =
+
+
 
                 // Do not process any more lines at this point
                 break
