@@ -82,21 +82,6 @@ fn point_in_poly(point: &Point, edges_h: &[&Edge], edges_v: &[&Edge]) -> bool {
         .copied()
         .collect();
 
-    // Debug
-    println!("Point {point:?}: ");
-    for horizontal in horizontal_edges_above_point.iter() {
-        println!("  Up   {:?}", horizontal);
-    }
-    for horizontal in horizontal_edges_below_point.iter() {
-        println!("  Down {:?}", horizontal);
-    }
-    for vertical in vertical_edges_to_left_of_point.iter() {
-        println!("  Left   {:?}", vertical);
-    }
-    for vertical in vertical_edges_to_right_of_point.iter() {
-        println!("  Rght {:?}", vertical);
-    }
-
     horizontal_edges_above_point.len() % 2 == 1 && horizontal_edges_below_point.len() % 2 == 1 &&
         vertical_edges_to_left_of_point.len() % 2 == 1 && vertical_edges_to_right_of_point.len() % 2 == 1
 }
