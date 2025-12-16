@@ -1,0 +1,11 @@
+[package]
+name = "day11"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+petgraph = "0.8.3"
+
+[[bin]]
+path = "src/part1.rs"
+name = "part1"
